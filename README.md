@@ -23,4 +23,4 @@ python main.py
 
 - Copy this address and paste it into the browser's address bar
 
-<img src="presentation/command_line.png" width="200"/>
+<img src="presentation/command_line.png" width="500"/>
