@@ -50,6 +50,33 @@ def write_in_json(key, val=None):
         json.dump(data, f)
 
 
+def write_img_key(path, img_name):
+    path = path.replace('\\', '/')
+    data = read_json(JSON_PATH)
+    
+    for key, val in data.items():
+        if path in key:
+            val[0] = img_name
+    
+    with open(JSON_PATH, "w") as f:
+        json.dump(data, f)
+
+
+def delete_img(path, img_name):
+    data = read_json(JSON_PATH)
+    path = path.replace('\\', '/')
+    
+    for key, val in data.items():
+        if path in key and img_name == val[0]:
+            img_delete_path = path.replace(DATA_FOLDER, IMG_FOLDER)
+            img_delete_path = os.path.join(img_delete_path, val[0])
+            os.remove(img_delete_path)
+            val[0] = "no_img"
+            
+    with open(JSON_PATH, "w") as f:
+        json.dump(data, f)
+    
+
 def delete_from_json(path):
     data = read_json(JSON_PATH)
     key = [i for i in data.keys() if path.replace('\\', '/') in i]
@@ -57,8 +84,8 @@ def delete_from_json(path):
     if key:
         val = data[key[0]]
         if val[0] != "no_img":
-            img_delete = os.path.join(IMG_FOLDER, val[0])
-            os.remove(img_delete)
+            img_delete_path = os.path.join(IMG_FOLDER, val[0])
+            os.remove(img_delete_path)
         del data[key[0]]
     if os.path.isdir(path.replace(DATA_FOLDER, IMG_FOLDER)):
         shutil.rmtree(path.replace(DATA_FOLDER, IMG_FOLDER))
