@@ -1,7 +1,7 @@
 # File manager
 File manager for 3D models
 
-<img src="presentation/test.png" width="800"/>
+<img src="presentation/start_page.png" width="800"/>
 
 ## Getting Started
 ### Installation
@@ -20,3 +20,7 @@ cd ../file_manager
 ```bash
 python main.py
 ```
+
+- Copy this address and paste it into the browser's address bar
+
+<img src="presentation/command_line.png" width="200"/>
