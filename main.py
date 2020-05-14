@@ -57,7 +57,26 @@ def dir_viewer(path=None):
                 json.dump(json_data, f)
 
             return redirect(f'/{path}')
+        
+        if 'delete_img' in request.form:
+            img_name = request.form.get('delete_img')
+            
+            delete_img(path, img_name)
+            
+            return redirect(f'/{path}')
+        
+        if 'add_img' in request.form:
+            file = request.files.getlist("preview_img")[0]
+            print(file)
 
+            if file and check_image(file.filename):
+                filename = secure_filename(file.filename)
+                img_path = path.replace(DATA_FOLDER, IMG_FOLDER)
+                file.save(os.path.join(img_path, filename))
+                write_img_key(path, filename)
+            
+            return redirect(f'/{path}')
+        
         if request.form.get('delete'):
             current_name = request.form.get('delete')
             delete_path = list(map(str, Path(path).rglob(current_name)))[0]
