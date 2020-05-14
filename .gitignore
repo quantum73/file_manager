@@ -7,5 +7,7 @@ __pycache__
 *.jpg
 *.blend
 *.png
+!command_line.png
+!start_page.png
 *.bmp
 *.obj
