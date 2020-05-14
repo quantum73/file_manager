@@ -118,20 +118,19 @@ def dir_viewer(path=None):
                 return redirect(f'/{prev_dir}')
 
         if 'upload' in request.form:
+            upload_flag = 'Exists'
             uploaded_files = request.files.getlist("file")
 
-            if len(uploaded_files) == 1 and check_image(uploaded_files[0].filename) is False:
-                upload_flag = 'Not Exists'
-            elif len(uploaded_files) == 1 and not check_image(uploaded_files[0].filename):
-                upload_flag = 'Exists'
+            if len(uploaded_files) == 1:
                 file = uploaded_files[0]
                 if file and allowed_file(file.filename):
                     filename = secure_filename(file.filename)
                     file.save(os.path.join(path, filename))
                     key = os.path.join(path, filename).replace('\\', '/')
                     write_in_json(key)
+                else:
+                    upload_flag = 'Not Exists'
             else:
-                upload_flag = 'Exists'
                 key = None
                 val = None
                 for file in uploaded_files:
@@ -153,6 +152,8 @@ def dir_viewer(path=None):
                         else:
                             key = os.path.join(path, filename).replace('\\', '/')
                             file.save(os.path.join(path, filename))
+                    else:
+                        upload_flag = 'Not Exists'
 
                 write_in_json(key, val)
 
