@@ -120,7 +120,9 @@ def dir_viewer(path=None):
         if 'upload' in request.form:
             uploaded_files = request.files.getlist("file")
 
-            if len(uploaded_files) == 1 and not check_image(uploaded_files[0].filename):
+            if len(uploaded_files) == 1 and check_image(uploaded_files[0].filename) is False:
+                upload_flag = 'Not Exists'
+            elif len(uploaded_files) == 1 and not check_image(uploaded_files[0].filename):
                 upload_flag = 'Exists'
                 file = uploaded_files[0]
                 if file and allowed_file(file.filename):

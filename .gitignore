@@ -1,0 +1,11 @@
+# Default ignored files
+.idea
+__pycache__
+*.rar
+*.zip
+*.tar
+*.jpg
+*.blend
+*.png
+*.bmp
+*.obj
