@@ -1,2 +1,2 @@
-# file_manager
+# File manager
 File manager for 3D models

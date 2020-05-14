@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>File Manager</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+	<form action="" method=post enctype=multipart/form-data>
+		<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+		  <span class="navbar-brand mb-0 h1">File Manager</span>
+
+		  <div class="collapse navbar-collapse" id="navbarSupportedContent" style="margin: 10px">
+			<ul class="navbar-nav mr-auto">
+			  
+			  <li class="nav-item active" style="margin: 10px">
+				<input class="btn btn-primary" type="submit" name="home" value="Home">
+			  </li>
+			  
+			  <li class="nav-item" style="margin: 10px">
+				<div class="form-inline my-2 my-lg-0">
+				  <input style="margin-right: -7px" class="form-control mr-sm-2" type="search" placeholder="New Folder" aria-label="Search" name="folder">
+				  <button style="margin-left: -7px" class="btn btn-secondary my-2 my-sm-0" type="submit" name="new_folder">Create</button>
+				</div>
+			  </li>
+			  
+			  <li class="nav-item" style="margin: 10px">
+				<div class="form-inline my-2 my-lg-0">
+					<input class=="mr-sm-2" style="margin-right: -10px" type="file" name="file" multiple>
+					<button style="margin-left: -10px" class="btn btn-success my-2 my-sm-0" type="submit" name="upload">Upload</button>
+				</div>
+			  </li>
+			
+			</ul>
+			
+			<div class="form-inline my-2 my-lg-0" style="margin: 10px">
+			  <input class="form-control mr-sm-2" type="search" placeholder="Search Tag/Description" aria-label="Search" name="search_label">
+			  <button style="margin-right: 2px" class="btn btn-outline-success my-2 my-sm-0" type="submit" name="search_tag">Tag</button>
+			  <button style="margin-left: 2px" class="btn btn-outline-success my-2 my-sm-0" type="submit" name="search_desc">Description</button>
+			</div>
+			
+		  </div>
+		</nav>
+	
+	{% if upload_flag == 'Not Exists' %}
+		<p style="margin: 1px" align="center"><b>Wrong format or file</b></p>
+	{% elif desc_flag == 'Not Exists' %}
+		<p style="margin: 1px" align="center"><b>Description not found</b></p>
+	{% elif flag_exists == 'Not exists' %}
+		<p style="margin: 1px" align="center"><b>Tag "{{ tag_name }}" not exists</b></p>
+	{% else %}
+		<p style="margin: 26px" align="center"><b> </b></p>
+	{% endif %}
+	
+	<table class="table">
+	<thead class="thead-light">
+		<tr>
+			<th class="text-left">Filename</th>
+			<th class="text-center">Description</th>
+			<th class="text-center">Preview</th>
+			<th class="text-center">Download</th>
+			<th class="text-center">Delete</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			{% if prev_dir %}
+				<td class="text-left"><a href="{{ url_for("dir_viewer", path=prev_dir) }}" style="color: #2e38c7;"><b>Назад</b></a></td>
+			{% endif %}
+		</tr>
+		{% for entry in entries %}
+			<tr>
+				<td class="text-left">
+					{% if entry.is_file() and entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
+						<p>{{ entry.name }}</p>
+					{% elif entry.is_dir() %}
+						<a href="{{ url_for("dir_viewer", path=entry.path) }}">{{ entry.name }}</a>
+					{% endif %}
+				</td>
+				
+				<td class="text-center">
+					{% if entry.is_file() %}
+						{% for key, val in json_data.items() %}
+							{% if val[-1] == "no_desc" %}
+								<form class="form-inline">
+								  <div class="form-group">
+									<textarea class="form-control" name="description" rows="3"></textarea>
+								  </div>
+								  <button style="margin-top: -10px" type="submit" class="btn btn-primary" name="add_desc">Add</button>
+								</form>
+							{% elif show_edit != False %}
+								<p>{{ val[-1] }}</p>
+								<button style="margin-top: 0px" type="submit" class="btn btn-primary" name="edit_desc" value="{{ val[-1] }}">Edit</button>
+							{% endif %}
+							{% if text_area != ''%}
+								<form class="form-inline">
+								  <div class="form-group">
+									<textarea class="form-control" name="description" rows="3">{{ text_area }}</textarea>
+								  </div>
+								  <button style="margin-top: -10px" type="submit" class="btn btn-primary" name="add_desc">Add</button>
+								</form>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				</td>
+				
+				<td class="text-center">
+					{% if entry.is_file() and entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
+						{% for key, val in json_data.items() %}
+							{% if entry.name in key %}
+								{% if val[0] != "no_img"%}
+									<p><img src="{{ url_for('static', filename=val[0]) }}" width="200" height="100"/></p>
+								{% endif %}
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				</td>
+				
+				<td class="text-center">
+					{% if entry.is_file() and entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
+						<p><a href="{{ url_for("download", filename=entry.name) }}" download>Скачать</a></p>
+					{% endif %}
+				</td>
+				
+				<td class="text-center">
+					<button class="btn btn-danger" type="submit" name="delete" value={{ entry.name }}>Удалить</button>
+				</td>
+				
+			</tr>
+		{% endfor %}
+	</form>
+
+</body>
+</html>
