@@ -67,9 +67,23 @@
 	<tbody>
 		<tr>
 			{% if prev_dir %}
-				<td class="text-left"><a href="{{ url_for("dir_viewer", path=prev_dir) }}" style="color: #2e38c7;"><b>Назад</b></a></td>
+				<td class="text-left">
+					<a href="{{ url_for("dir_viewer", path=prev_dir) }}" style="color: #2e38c7;"><b>Назад</b></a>
+				</td>
 			{% endif %}
 		</tr>
+		
+		<!--
+		<tr>
+			<td class="text-left">
+				<div class="form-inline my-2 my-lg-0">
+					<input class="form-control mr-sm-2" type="search" placeholder="Buffer link" aria-label="Search" name="buffer_link">
+					<button class="btn btn-primary my-2 my-sm-0" type="submit" name="add_buffer_link">Add link</button>
+				</div>
+			</td>
+		</tr>
+		-->
+		
 		{% for entry in entries %}
 			<tr>
 				<td class="text-left">
@@ -112,6 +126,12 @@
 							{% if entry.name in key %}
 								{% if val[0] != "no_img"%}
 									<p><img src="{{ url_for('static', filename=val[0]) }}" width="200" height="100"/></p>
+									<button style="margin-top: 1px" type="submit" class="btn btn-primary" name="delete_img" value="{{ val[0] }}">Delete img</button>
+								{% else %}
+									<div class="form-inline-center">
+										<input type="file" name="preview_img">
+										<button style="margin-left: -40px" class="btn btn-primary" type="submit" name="add_img">Add img</button>
+									</div>
 								{% endif %}
 							{% endif %}
 						{% endfor %}
