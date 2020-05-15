@@ -73,7 +73,6 @@
 			{% endif %}
 		</tr>
 		
-		<!--
 		<tr>
 			<td class="text-left">
 				<div class="form-inline my-2 my-lg-0">
@@ -82,13 +81,16 @@
 				</div>
 			</td>
 		</tr>
-		-->
 		
 		{% for entry in entries %}
 			<tr>
 				<td class="text-left">
-					{% if entry.is_file() and entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
-						<p>{{ entry.name }}</p>
+					{% if entry.is_file() %}
+						{% if entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
+							<p>{{ entry.name }}</p>
+						{% elif 'txt' in entry.name.split('.')[-1] %}
+							<p>{{ entry.name.replace('^', '\\').replace('.txt', '') }}</p>
+						{% endif %}
 					{% elif entry.is_dir() %}
 						<a href="{{ url_for("dir_viewer", path=entry.path) }}">{{ entry.name }}</a>
 					{% endif %}
@@ -97,44 +99,40 @@
 				<td class="text-center">
 					{% if entry.is_file() %}
 						{% for key, val in json_data.items() %}
-							{% if val[-1] == "no_desc" %}
-								<form class="form-inline">
-								  <div class="form-group">
-									<textarea class="form-control" name="description" rows="3"></textarea>
-								  </div>
-								  <button style="margin-top: -10px" type="submit" class="btn btn-primary" name="add_desc">Add</button>
-								</form>
-							{% elif show_edit != False %}
-								<p>{{ val[-1] }}</p>
-								<button style="margin-top: 0px" type="submit" class="btn btn-primary" name="edit_desc" value="{{ val[-1] }}">Edit</button>
-							{% endif %}
-							{% if text_area != ''%}
-								<form class="form-inline">
-								  <div class="form-group">
-									<textarea class="form-control" name="description" rows="3">{{ text_area }}</textarea>
-								  </div>
-								  <button style="margin-top: -10px" type="submit" class="btn btn-primary" name="add_desc">Add</button>
-								</form>
+							{% if entry.name in key %}
+								{% if val["show_edit"] == "off" %}
+									<form class="form-inline">
+									  <div class="form-group">
+										<textarea class="form-control" name="description" rows="3">{{ val["description"] }}</textarea>
+									  </div>
+									  <button style="margin-top: -10px" type="submit" class="btn btn-primary" name="add_desc" value="{{ key }}">Add</button>
+									</form>
+								{% else %}
+									<p>{{ val["description"] }}</p>
+									<button style="margin-top: 0px" type="submit" class="btn btn-primary" name="edit_desc" value="{{ key }}">Edit</button>
+								{% endif %}
 							{% endif %}
 						{% endfor %}
 					{% endif %}
 				</td>
 				
 				<td class="text-center">
-					{% if entry.is_file() and entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
-						{% for key, val in json_data.items() %}
-							{% if entry.name in key %}
-								{% if val[0] != "no_img"%}
-									<p><img src="{{ url_for('static', filename=val[0]) }}" width="200" height="100"/></p>
-									<button style="margin-top: 1px" type="submit" class="btn btn-primary" name="delete_img" value="{{ val[0] }}">Delete img</button>
-								{% else %}
-									<div class="form-inline-center">
-										<input type="file" name="preview_img">
-										<button style="margin-left: -40px" class="btn btn-primary" type="submit" name="add_img">Add img</button>
-									</div>
+					{% if entry.is_file() %}
+						{% if entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] or 'txt' in entry.name.split('.')[-1] %}
+							{% for key, val in json_data.items() %}
+								{% if entry.name in key %}
+									{% if val["img_name"] != "no_img" %}
+										<p><img src="{{ url_for('static', filename=val["img_name"]) }}" width="200" height="100"/></p>
+										<button style="margin-top: 1px" type="submit" class="btn btn-primary" name="delete_img" value="{{ key }}">Delete img</button>
+									{% else %}
+										<div class="form-inline-center">
+											<input type="file" name="preview_img" multiple="">
+											<button style="margin-left: -40px" class="btn btn-primary" type="submit" name="add_img" value="{{ key }}">Add img</button>
+										</div>
+									{% endif %}
 								{% endif %}
-							{% endif %}
-						{% endfor %}
+							{% endfor %}
+						{% endif %}
 					{% endif %}
 				</td>
 				

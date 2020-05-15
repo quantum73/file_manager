@@ -19,7 +19,6 @@ def dir_viewer(path=None):
     prev_dir = None
     flag_exists = None
     tag = None
-    text_area = ''
     json_data = read_json(JSON_PATH)
 
     if path and path != TOP_DIR:
@@ -34,47 +33,55 @@ def dir_viewer(path=None):
             return redirect('/')
 
         if 'edit_desc' in request.form:
-            desc_text = request.form.get('edit_desc')
-            show_edit = False
-
-            if desc_text:
-                text_area = desc_text
-                prev_dir = path
-                entries = os.scandir(path)
-                return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                                       text_area=text_area, json_data=json_data, show_edit=show_edit)
+            curr_key = request.form.get('edit_desc')
+            
+            edit_desc_key(curr_key)
+            
+            return redirect(f'/{path}')
 
         if 'add_desc' in request.form:
             description = request.form.get('description')
-
-            for key, val in json_data.items():
-                if path.replace('\\', '/') in key:
-                    new_val = json_data[key]
-                    new_val[-1] = description
-                    json_data[key] = new_val
-
-            with open(JSON_PATH, "w") as f:
-                json.dump(json_data, f)
-
+            curr_key = request.form.get('add_desc')
+            
+            write_desc_key(curr_key, description)
+            
             return redirect(f'/{path}')
         
         if 'delete_img' in request.form:
-            img_name = request.form.get('delete_img')
+            curr_key = request.form.get('delete_img')
             
-            delete_img(path, img_name)
+            delete_img(curr_key, path)
             
             return redirect(f'/{path}')
         
         if 'add_img' in request.form:
-            file = request.files.getlist("preview_img")[0]
-            print(file)
+            curr_path = request.form.get('add_img')
+            new_name = curr_path.split('/')[-1].split('.')[0]
+            files = request.files.getlist("preview_img")
+            for el in files:
+                if bool(el.filename):
+                    file = el
+                    break
 
             if file and check_image(file.filename):
                 filename = secure_filename(file.filename)
+                filename = new_name + '.' + filename.split('.')[-1]
                 img_path = path.replace(DATA_FOLDER, IMG_FOLDER)
                 file.save(os.path.join(img_path, filename))
-                write_img_key(path, filename)
+                write_img_key(curr_path, filename)
             
+            return redirect(f'/{path}')
+
+        if 'add_buffer_link' in request.form:
+            buffer_link = request.form.get('buffer_link')
+            buffer_link = buffer_link.replace('\\', '^')
+            link_path = os.path.join(path, f'{buffer_link}.txt')
+
+            with open(link_path, "w") as f:
+                f.write("")
+
+            write_in_json(link_path.replace('\\', '/'))
+
             return redirect(f'/{path}')
         
         if request.form.get('delete'):
@@ -185,8 +192,7 @@ def dir_viewer(path=None):
     json_data = read_json(JSON_PATH)
     upload_flag = None
 
-    return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                           flag_exists=flag_exists, tag_name=tag, text_area=text_area,
+    return render_template("start.html", entries=entries, prev_dir=prev_dir, flag_exists=flag_exists, tag_name=tag,
                            json_data=json_data, img_path=img_path, upload_flag=upload_flag)
 
 
