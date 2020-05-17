@@ -120,8 +120,7 @@ def dir_viewer(path=None):
                 return redirect(f'/{prev_dir}')
             else:
                 flag_exists = 'Not exists'
-                prev_dir = TOP_DIR
-                entries = os.scandir(path)
+                
                 return render_template("start.html", entries=entries, prev_dir=prev_dir,
                                        flag_exists=flag_exists, tag_name=tag,
                                        json_data=json_data, img_path=img_path)
