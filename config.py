@@ -15,7 +15,6 @@ DB_DIR = os.path.join(app.root_path, 'db')
 JSON_PATH = os.path.join(DB_DIR, 'files.json')
 IMG_EXTENSIONS = ['png', 'jpg', 'jpeg', 'bmp']
 ALLOWED_EXTENSIONS = ['obj', 'zip', 'rar', 'blend', 'fbx']
-ALLOWED_EXTENSIONS.extend(IMG_EXTENSIONS)
 
 if not os.path.exists(IMG_DIR):
     os.makedirs(IMG_DIR)

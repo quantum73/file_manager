@@ -7,7 +7,6 @@ from config import *
 
 
 MY_IP = socket.gethostbyname(socket.getfqdn())
-# PORT = 5000
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -15,9 +14,9 @@ MY_IP = socket.gethostbyname(socket.getfqdn())
 @check_and_transform_path
 def dir_viewer(path=None):
     entries = os.scandir(path)
-    img_path = IMG_DIR.replace('\\', '/')
     prev_dir = None
     flag_exists = None
+    upload_flag = None
     tag = None
     json_data = read_json(JSON_PATH)
 
@@ -105,8 +104,7 @@ def dir_viewer(path=None):
                 prev_dir = re.sub(rf'\b{folder}', '', paths_list[0])
                 entries = os.scandir(prev_dir)
                 return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                                       flag_exists=flag_exists, tag_name=folder,
-                                       json_data=json_data, img_path=img_path)
+                                       flag_exists=flag_exists, tag_name=folder, json_data=json_data)
             else:
                 os.mkdir(os.path.join(path, folder))
                 return redirect(f'/{path}')
@@ -120,79 +118,43 @@ def dir_viewer(path=None):
                 return redirect(f'/{prev_dir}')
             else:
                 flag_exists = 'Not exists'
-                
                 return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                                       flag_exists=flag_exists, tag_name=tag,
-                                       json_data=json_data, img_path=img_path)
+                                       flag_exists=flag_exists, tag_name=tag, json_data=json_data)
 
         if 'search_desc' in request.form:
             desc_flag = 'Not Exists'
             find_desc = request.form.get('search_label')
-
+            
             for key, val in json_data.items():
-                if find_desc in val[-1]:
+                if find_desc in val["description"]:
                     desc_flag = 'Exists'
                     prev_dir = key.replace('/', '\\')
                     prev_dir = prev_dir.replace(TOP_DIR, '').strip('\\/')
                     prev_dir = os.path.join(TOP_DIR, *prev_dir.split('\\')[:-1])
+                    return redirect(f'/{prev_dir}')
 
-            if desc_flag == 'Not Exists':
-                return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                                       desc_flag=desc_flag, json_data=json_data, img_path=img_path)
-            else:
-                return redirect(f'/{prev_dir}')
+            return render_template("start.html", entries=entries, prev_dir=prev_dir,
+                                   desc_flag=desc_flag, json_data=json_data)
 
         if 'upload' in request.form:
-            upload_flag = 'Exists'
-            uploaded_files = request.files.getlist("file")
-
-            if len(uploaded_files) == 1:
-                file = uploaded_files[0]
-                if file and allowed_file(file.filename):
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(path, filename))
-                    key = os.path.join(path, filename).replace('\\', '/')
-                    write_in_json(key)
-                else:
-                    upload_flag = 'Not Exists'
-            else:
-                key = None
-                val = None
-                for file in uploaded_files:
-                    if file and allowed_file(file.filename):
-                        filename = secure_filename(file.filename)
-
-                        if check_image(filename):
-                            val_path = path.replace(DATA_FOLDER, IMG_FOLDER)
-                            save_img_path = val_path
-                            check_dir(val_path)
-                            val_path = val_path.split(IMG_FOLDER)[-1]
-                            if val_path:
-                                img_path = os.path.join(val_path, filename)
-                                val = img_path[1:].replace('\\', '/')
-                                file.save(os.path.join(save_img_path, filename))
-                            else:
-                                val = filename
-                                file.save(os.path.join(IMG_DIR, filename))
-                        else:
-                            key = os.path.join(path, filename).replace('\\', '/')
-                            file.save(os.path.join(path, filename))
-                    else:
-                        upload_flag = 'Not Exists'
-
-                write_in_json(key, val)
-
-            if upload_flag == 'Not Exists':
-                return render_template("start.html", entries=entries, prev_dir=prev_dir,
-                                       upload_flag=upload_flag, json_data=json_data, img_path=img_path)
-            else:
+            file = request.files.getlist("file")[0]
+            
+            if file and allowed_file(file.filename):
+                upload_flag = 'Exists'
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(path, filename))
+                key = os.path.join(path, filename).replace('\\', '/')
+                write_in_json(key)
                 return redirect(f'/{path}')
+            else:
+                upload_flag = 'Not Exists'
+                return render_template("start.html", entries=entries, prev_dir=prev_dir,
+                                       upload_flag=upload_flag, json_data=json_data)
 
     json_data = read_json(JSON_PATH)
-    upload_flag = None
 
-    return render_template("start.html", entries=entries, prev_dir=prev_dir, flag_exists=flag_exists, tag_name=tag,
-                           json_data=json_data, img_path=img_path, upload_flag=upload_flag)
+    return render_template("start.html", entries=entries, prev_dir=prev_dir, flag_exists=flag_exists,
+                           tag_name=tag, json_data=json_data, upload_flag=upload_flag)
 
 
 @app.route("/download/<path:filename>", methods=['GET', 'POST'])
@@ -203,4 +165,4 @@ def download(filename):
 
 
 if __name__ == '__main__':
-    app.run(host=MY_IP)
+    app.run(host=MY_IP, threaded=True)
