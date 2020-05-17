@@ -59,16 +59,21 @@ python main.py
 Кнопка <b>Tag</b> выполняет поиск по тэгу(название папки), а кнопка <b>Description</b> выполняет поиск по описанию, соответственно.
 
 <i>Примечания:</i>
+
 - Если тэг не был найден, то выводится следующее сообщение:
+  
   <img src="presentation/tag_no_exists.png" width="800"/>
+  
   В кавычках указывается название тэга, который вы искали.
   В нашем случае это тэг <i>toyota</i>.
+
 - Если не найдено соответствие описанию, то выводится следующее сообщение:
+  
   <img src="presentation/desc_no_found.png" width="800"/>
 
 ### Добавление модели в виде ссылки на Buffer
 
-<img src="presentation/buffer_link.png" width="800"/>
+<img src="presentation/buffer_link.png" width="200"/>
 
 Для добавить модель в виде ссылки на Buffer введите в поле <b>Buffer link</b> ссылку на файл в Buffer и нажмите <b>Add link</b>
 
