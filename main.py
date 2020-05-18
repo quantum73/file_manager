@@ -55,7 +55,11 @@ def dir_viewer(path=None):
         
         if 'add_img' in request.form:
             curr_path = request.form.get('add_img')
-            new_name = curr_path.split('/')[-1].split('.')[0]
+            if '^' in curr_path:
+                new_name = curr_path.split('^')[-1].replace('.txt', '')
+                new_name = new_name.split('.')[0]
+            else:
+                new_name = curr_path.split('/')[-1].split('.')[0]
             files = request.files.getlist("preview_img")
             for el in files:
                 if bool(el.filename):
@@ -74,6 +78,7 @@ def dir_viewer(path=None):
         if 'add_buffer_link' in request.form:
             buffer_link = request.form.get('buffer_link')
             buffer_link = buffer_link.replace('\\', '^')
+            buffer_link = buffer_link.replace(' ', '_')
             link_path = os.path.join(path, f'{buffer_link}.txt')
 
             with open(link_path, "w") as f:
@@ -85,6 +90,7 @@ def dir_viewer(path=None):
         
         if request.form.get('delete'):
             current_name = request.form.get('delete')
+            print('delete path =', current_name)
             delete_path = list(map(str, Path(path).rglob(current_name)))[0]
             delete_from_json(delete_path)
 
@@ -127,7 +133,6 @@ def dir_viewer(path=None):
             
             for key, val in json_data.items():
                 if find_desc in val["description"]:
-                    desc_flag = 'Exists'
                     prev_dir = key.replace('/', '\\')
                     prev_dir = prev_dir.replace(TOP_DIR, '').strip('\\/')
                     prev_dir = os.path.join(TOP_DIR, *prev_dir.split('\\')[:-1])
@@ -140,7 +145,6 @@ def dir_viewer(path=None):
             file = request.files.getlist("file")[0]
             
             if file and allowed_file(file.filename):
-                upload_flag = 'Exists'
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(path, filename))
                 key = os.path.join(path, filename).replace('\\', '/')

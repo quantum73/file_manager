@@ -4,7 +4,6 @@ import json
 from flask import Flask, abort
 import shutil
 
-
 DATA_FOLDER = 'data'
 IMG_FOLDER = 'img'
 IMG_DIR = os.path.join(os.getcwd(), IMG_FOLDER)
@@ -41,9 +40,9 @@ def read_json(path):
 def write_in_json(key, val=None):
     data = read_json(JSON_PATH)
     if val is None:
-        data[key] = {"img_name":"no_img", "description":"no_desc", "show_edit":"on"}
+        data[key] = {"img_name": "no_img", "description": "no_desc", "show_edit": "on"}
     else:
-        data[key] = {"img_name":val, "description":"no_desc", "show_edit":"on"}
+        data[key] = {"img_name": val, "description": "no_desc", "show_edit": "on"}
 
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
@@ -52,11 +51,11 @@ def write_in_json(key, val=None):
 def edit_desc_key(curr_key):
     curr_key = curr_key.replace('\\', '/')
     data = read_json(JSON_PATH)
-    
+
     for key, val in data.items():
         if curr_key in key:
             val["show_edit"] = "off"
-    
+
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
 
@@ -64,12 +63,12 @@ def edit_desc_key(curr_key):
 def write_desc_key(curr_key, description):
     curr_key = curr_key.replace('\\', '/')
     data = read_json(JSON_PATH)
-    
+
     for key, val in data.items():
         if curr_key in key:
             val["description"] = description
             val["show_edit"] = "on"
-    
+
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
 
@@ -77,11 +76,11 @@ def write_desc_key(curr_key, description):
 def write_img_key(path, img_name):
     path = path.replace('\\', '/')
     data = read_json(JSON_PATH)
-    
+
     for key, val in data.items():
         if path in key:
             val["img_name"] = img_name
-    
+
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
 
@@ -89,17 +88,17 @@ def write_img_key(path, img_name):
 def delete_img(curr_key, path):
     data = read_json(JSON_PATH)
     path = path.replace('\\', '/')
-    
+
     for key, val in data.items():
         if curr_key in key and val["img_name"] != "no_img":
             img_delete_path = path.replace(DATA_FOLDER, IMG_FOLDER)
             img_delete_path = os.path.join(img_delete_path, val["img_name"])
             os.remove(img_delete_path)
             val["img_name"] = "no_img"
-            
+
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
-    
+
 
 def delete_from_json(path):
     data = read_json(JSON_PATH)

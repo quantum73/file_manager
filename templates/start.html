@@ -89,7 +89,7 @@
 						{% if entry.name.split('.')[-1] in ['obj', 'zip', 'rar', 'blend', 'fbx'] %}
 							<p>{{ entry.name }}</p>
 						{% elif 'txt' in entry.name.split('.')[-1] %}
-							<p>{{ entry.name.replace('^', '\\').replace('.txt', '') }}</p>
+							<p>{{ entry.name.replace('^', '\\').replace('_', ' ').replace('.txt', '') }}</p>
 						{% endif %}
 					{% elif entry.is_dir() %}
 						<a href="{{ url_for("dir_viewer", path=entry.path) }}">{{ entry.name }}</a>
