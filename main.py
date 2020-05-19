@@ -70,6 +70,8 @@ def dir_viewer(path=None):
                 filename = secure_filename(file.filename)
                 filename = new_name + '.' + filename.split('.')[-1]
                 img_path = path.replace(DATA_FOLDER, IMG_FOLDER)
+                if not os.path.exists(img_path):
+                    os.makedirs(img_path)
                 file.save(os.path.join(img_path, filename))
                 write_img_key(curr_path, filename)
             
