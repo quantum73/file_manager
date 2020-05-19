@@ -61,19 +61,20 @@ def dir_viewer(path=None):
             else:
                 new_name = curr_path.split('/')[-1].split('.')[0]
             files = request.files.getlist("preview_img")
+            file = False
             for el in files:
                 if bool(el.filename):
                     file = el
                     break
 
             if file and check_image(file.filename):
-                filename = secure_filename(file.filename)
-                filename = new_name + '.' + filename.split('.')[-1]
+                orig_name = secure_filename(file.filename)
+                new_name = new_name + '.' + orig_name.split('.')[-1]
                 img_path = path.replace(DATA_FOLDER, IMG_FOLDER)
                 if not os.path.exists(img_path):
                     os.makedirs(img_path)
-                file.save(os.path.join(img_path, filename))
-                write_img_key(curr_path, filename)
+                file.save(os.path.join(img_path, new_name))
+                write_img_key(curr_path, new_name)
             
             return redirect(f'/{path}')
 
@@ -92,7 +93,6 @@ def dir_viewer(path=None):
         
         if request.form.get('delete'):
             current_name = request.form.get('delete')
-            print('delete path =', current_name)
             delete_path = list(map(str, Path(path).rglob(current_name)))[0]
             delete_from_json(delete_path)
 

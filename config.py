@@ -73,13 +73,16 @@ def write_desc_key(curr_key, description):
         json.dump(data, f)
 
 
-def write_img_key(path, img_name):
+def write_img_key(path, new_name):
     path = path.replace('\\', '/')
+    img_path = path.split(DATA_FOLDER)[-1]
+    img_path = img_path.replace(img_path.split('/')[-1], new_name)
+    img_path = '../' + IMG_FOLDER + img_path
     data = read_json(JSON_PATH)
 
     for key, val in data.items():
         if path in key:
-            val["img_name"] = img_name
+            val["img_name"] = img_path
 
     with open(JSON_PATH, "w") as f:
         json.dump(data, f)
@@ -91,8 +94,9 @@ def delete_img(curr_key, path):
 
     for key, val in data.items():
         if curr_key in key and val["img_name"] != "no_img":
+            img_name = val["img_name"].split('/')[-1]
             img_delete_path = path.replace(DATA_FOLDER, IMG_FOLDER)
-            img_delete_path = os.path.join(img_delete_path, val["img_name"])
+            img_delete_path = os.path.join(img_delete_path, img_name)
             os.remove(img_delete_path)
             val["img_name"] = "no_img"
 
@@ -107,7 +111,10 @@ def delete_from_json(path):
     if key:
         val = data[key[0]]
         if val["img_name"] != "no_img":
-            img_delete_path = os.path.join(IMG_FOLDER, val["img_name"])
+            img_name = val["img_name"].split('/')[-1]
+            filename = key[0].split('/')[-1]
+            img_delete_path = key[0].replace(DATA_FOLDER, IMG_FOLDER)
+            img_delete_path = img_delete_path.replace(filename, img_name)
             os.remove(img_delete_path)
         del data[key[0]]
     if os.path.isdir(path.replace(DATA_FOLDER, IMG_FOLDER)):
